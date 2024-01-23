@@ -6,6 +6,13 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { getServerSession } from "next-auth";
 
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+);
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {

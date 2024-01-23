@@ -10,12 +10,24 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import GoogleSignInButton from "../github-auth-button";
+
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+);
+
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_IN") {
+    window.location.href = "/dashboard";
+  }
+});
 
 const formSchema = z.object({
   email: z.string().email({ message: "Enter a valid email address" }),
@@ -36,13 +48,25 @@ export default function UserAuthForm() {
   });
 
   const onSubmit = async (data: UserFormValue) => {
-    signIn("credentials", {
+    setLoading(true);
+    let { user, error } = await supabase.auth.signInWithOtp({
       email: data.email,
-      callbackUrl: callbackUrl ?? "/dashboard",
+      // options: {
+      //   emailRedirectTo: "https://api.example.com/v1/authenticate",
+      // },
     });
-  };
 
-  console.log(form);
+    if (error) {
+      console.error("Error signing in:", error);
+      // Optionally, handle the display of the error message to the user
+    }
+    setLoading(false);
+
+    // signIn("credentials", {
+    //   email: data.email,
+    //   callbackUrl: callbackUrl ?? "/dashboard",
+    // });
+  };
 
   return (
     <>
