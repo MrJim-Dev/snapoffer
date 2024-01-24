@@ -16,12 +16,12 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import GoogleSignInButton from "../github-auth-button";
 
-import { createClient } from "@supabase/supabase-js";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Database } from "./database.types";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-);
+import { router } from "next/router";
+
+const supabase = createClientComponentClient<Database>();
 
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === "SIGNED_IN") {
@@ -51,16 +51,14 @@ export default function UserAuthForm() {
     setLoading(true);
     let { user, error } = await supabase.auth.signInWithOtp({
       email: data.email,
-      // options: {
-      //   emailRedirectTo: "https://api.example.com/v1/authenticate",
-      // },
     });
 
     if (error) {
       console.error("Error signing in:", error);
       // Optionally, handle the display of the error message to the user
     }
-    setLoading(false);
+
+    // router.refresh();
 
     // signIn("credentials", {
     //   email: data.email,

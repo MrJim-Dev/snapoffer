@@ -111,6 +111,15 @@ export type Employee = {
   profile_picture?: string | null; // Profile picture can be a string (URL) or null (if no picture)
 };
 
+export type Category = {
+  id: number;
+  CategoryID: string;
+  CategoryName: string;
+  Description: string;
+  BasePrice: number;
+  IsActive: boolean;
+};
+
 export const navItems: NavItem[] = [
   {
     title: "Dashboard",

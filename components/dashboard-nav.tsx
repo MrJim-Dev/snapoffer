@@ -10,25 +10,9 @@ import { cn } from "@/lib/utils";
 import { NavItem } from "@/types";
 import { Dispatch, SetStateAction } from "react";
 
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-);
-
-// const { user } = supabase.auth.getUser();
-
-// if (!user) {
-//   window.location.href = "";
-// }
-
-const Logout = async () => {
-  const { error } = await supabase.auth.signOut();
-  window.location.href = "/";
-  console.log(error);
-};
-
+import type { Database } from "@/lib/database.types";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useRouter } from "next/navigation";
 interface DashboardNavProps {
   items: NavItem[];
   setOpen?: Dispatch<SetStateAction<boolean>>;
@@ -36,6 +20,14 @@ interface DashboardNavProps {
 
 export function DashboardNav({ items, setOpen }: DashboardNavProps) {
   const path = usePathname();
+  // const { logout, error } = useLogout();
+  const router = useRouter();
+  const supabase = createClientComponentClient<Database>();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.refresh();
+  };
 
   if (!items?.length) {
     return null;
@@ -68,7 +60,7 @@ export function DashboardNav({ items, setOpen }: DashboardNavProps) {
           )
         );
       })}
-      <Button onClick={Logout}>
+      <Button onClick={handleSignOut}>
         <span
           className={cn(
             "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
